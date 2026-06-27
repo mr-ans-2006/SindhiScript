@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="sd" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>SindhiScript Web IDE</title>
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Vazirmatn', Consolas, monospace;
+        }
+        
+        #top-bar {
+            background-color: #333333;
+            padding: 10px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #252526;
+        }
+        
+        #editor-container {
+            height: calc(70vh - 40px);
+            width: 100%;
+            position: relative;
+        }
+        
+        .CodeMirror {
+            font-family: 'Vazirmatn', Consolas, monospace;
+            font-size: 18px;
+            direction: rtl;
+        }
+        
+        #terminal-panel {
+            height: 30%;
+            background-color: #1e1e1e;
+            border-top: 1px solid #3c3c3c;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #terminal-header {
+            background-color: #252526;
+            padding: 5px 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        #terminal-output {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: 'Vazirmatn', Consolas, monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            color: #cccccc;
+            direction: rtl;
+        }
+        
+        .output-stdout { color: #cccccc; }
+        .output-stderr { color: #f48771; }
+        .output-info { color: #3794ff; font-style: italic; }
+        
+        button.run-btn {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        button.run-btn:hover { background-color: #1177bb; }
+        
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <span>سنڌي (SindhiScript) IDE</span>
+        <button class="run-btn" onclick="runCode()">هلائڻ (Run) - Ctrl+Enter</button>
+    </div>
+
+    <div id="editor-container"></div>
+
+    <div id="terminal-panel">
+        <div id="terminal-header">
+            <span>ٽرمينل (Terminal)</span>
+            <span style="cursor:pointer;" onclick="clearTerminal()">صاف ڪريو (Clear)</span>
+        </div>
+        <div id="terminal-output">
+<span class="output-info">سنڌي (SindhiScript) REPL ۾ ڀليڪار! ڪوڊ لکو ۽ هلائڻ لاءِ Ctrl+Enter دٻايو.</span>
+        </div>
+    </div>
+
+    <!-- CodeMirror Editor Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/vsc-dark-plus.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    
+    <script>
+        let editor;
+        
+        // Setup CodeMirror Editor
+        document.addEventListener('DOMContentLoaded', function() {
+            editor = CodeMirror(document.getElementById('editor-container'), {
+                value: '# پنهنجو سنڌي ڪوڊ هتي لکو...\nڇاپ("سنڌي پروگرامنگ جي دنيا ۾ ڀليڪار!")\n',
+                mode: 'python',
+                theme: 'vsc-dark-plus',
+                lineNumbers: true,
+                direction: "rtl",
+                extraKeys: {
+                    "Ctrl-Enter": function(cm) {
+                        runCode();
+                    }
+                }
+            });
+            // Force editor to fill container
+            editor.setSize("100%", "100%");
+        });
+
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = '';
+        }
+
+        function appendToTerminal(text, type) {
+            const term = document.getElementById('terminal-output');
+            const span = document.createElement('span');
+            span.className = 'output-' + type;
+            span.textContent = text;
+            term.appendChild(span);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        async function runCode() {
+            if (!editor) return;
+            const code = editor.getValue();
+            
+            appendToTerminal('\n--- هلائڻ جاري آهي (Running) ---\n', 'info');
+            
+            try {
+                const response = await fetch('/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: code
+                });
+                
+                const result = await response.json();
+                pollRun(result.run_id);
+                
+            } catch (err) {
+                appendToTerminal('اندروني سرور جي غلطي: ' + err.message + '\n', 'stderr');
+            }
+        }
+        
+        async function pollRun(run_id) {
+            try {
+                const response = await fetch('/poll?run_id=' + run_id);
+                const data = await response.json();
+                
+                if (data.status === 'not_found') return;
+                
+                if (data.stdout) appendToTerminal(data.stdout, 'stdout');
+                if (data.stderr) appendToTerminal(data.stderr, 'stderr');
+                
+                if (data.status === 'waiting_input') {
+                    const term = document.getElementById('terminal-output');
+                    
+                    // Create inline input element
+                    const inputWrapper = document.createElement('span');
+                    inputWrapper.className = 'input-wrapper';
+                    
+                    const inputField = document.createElement('input');
+                    inputField.type = 'text';
+                    inputField.className = 'terminal-input';
+                    inputField.style.background = 'transparent';
+                    inputField.style.border = 'none';
+                    inputField.style.color = '#fff';
+                    inputField.style.fontFamily = 'inherit';
+                    inputField.style.fontSize = 'inherit';
+                    inputField.style.outline = 'none';
+                    inputField.style.width = '200px';
+                    
+                    inputWrapper.appendChild(inputField);
+                    term.appendChild(inputWrapper);
+                    
+                    // Scroll to bottom and focus
+                    term.scrollTop = term.scrollHeight;
+                    inputField.focus();
+                    
+                    // Wait for Enter key
+                    inputField.addEventListener('keydown', async function(e) {
+                        if (e.key === 'Enter') {
+                            const val = inputField.value;
+                            // Replace input box with standard text
+                            inputWrapper.remove();
+                            
+                            // Send input to server
+                            await fetch('/input', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ run_id: run_id, input: val })
+                            });
+                            
+                            // Resume polling immediately
+                            pollRun(run_id);
+                        }
+                    });
+                    
+                    // DO NOT call setTimeout here, we wait for the user to press Enter!
+                    
+                } else if (data.status === 'running') {
+                    setTimeout(() => pollRun(run_id), 300);
+                } else if (data.status === 'finished') {
+                    appendToTerminal('\n--- پورو ٿيو (Finished) ---\n', 'info');
+                }
+                
+            } catch (err) {
+                appendToTerminal('Polling error: ' + err.message + '\n', 'stderr');
+            }
+        }
+    </script>
+</body>
+</html>
