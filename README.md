@@ -21,17 +21,21 @@ SindhiScript is a fully functional, tree-walking interpreted programming languag
 
 ## 🛠️ انسٽاليشن (Installation)
 
+## 🛠️ انسٽاليشن (Installation)
+
 Getting started with SindhiScript is incredibly simple. It requires zero external dependencies, just Python itself!
-سنڌي اسڪرپٽ سان شروعات ڪرڻ انتهائي آسان آهي. ان لاءِ ڪنهن ٻئي سافٽويئر جي ضرورت ناهي، رڳو پائيٿون جو هجڻ لازمي آهي!
+
+*سنڌي اسڪرپٽ سان شروعات ڪرڻ انتهائي آسان آهي. ان لاءِ ڪنهن ٻئي سافٽويئر جي ضرورت ناهي، رڳو پائيٿون جو هجڻ لازمي آهي!*
 
 1. Clone this repository to your computer:
-   پنهنجي ڪمپيوٽر تي هي ريپازيٽري ڪلون (clone) ڪريو:
+   *(پنهنجي ڪمپيوٽر تي هي ريپازيٽري ڪلون ڪريو):*
    ```bash
-   git clone https://github.com/yourusername/SindhiScript.git
+   git clone https://github.com/mr-ans-2006/SindhiScript.git
    cd SindhiScript
    ```
+
 2. Ensure you have **Python 3.8+** installed on your system.
-   پڪ ڪريو ته توهان جي ڪمپيوٽر تي **پائيٿون (Python) 3.8+** انسٽال ٿيل آهي.
+   *(پڪ ڪريو ته توهان جي ڪمپيوٽر تي **پائيٿون (Python) 3.8+** انسٽال ٿيل آهي).*
 
 ## 📦 ڪيئن هلاجي (How to Run)
 
