@@ -177,12 +177,12 @@ def is_any_digit(ch: str) -> bool:
 
 def is_identifier_start(ch: str) -> bool:
     """Check if character can start an identifier (Sindhi letter or _)."""
-    return is_sindhi_letter(ch) or ch == '_'
+    return is_sindhi_letter(ch) or ch == '_' or ch in ('\u200C', '\u200D')
 
 
 def is_identifier_char(ch: str) -> bool:
     """Check if character can appear in an identifier body."""
-    return is_sindhi_letter(ch) or is_any_digit(ch) or ch == '_'
+    return is_sindhi_letter(ch) or is_any_digit(ch) or ch == '_' or ch in ('\u200C', '\u200D')
 
 
 def sindhi_to_arabic(text: str) -> str:
@@ -223,6 +223,8 @@ def _verify_phase0_unicode():
                 f"U+{cp:04X} '{ch}' ({unicodedata.name(ch, '?')}) "
                 f"has category {cat} and is not recognized as a Sindhi letter"
             )
+
+from .errors import RuntimeError
 
 _verify_phase0_unicode()
 
