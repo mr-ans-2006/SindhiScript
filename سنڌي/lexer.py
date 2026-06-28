@@ -177,7 +177,7 @@ def is_any_digit(ch: str) -> bool:
 
 def is_identifier_start(ch: str) -> bool:
     """Check if character can start an identifier (Sindhi letter or _)."""
-    return is_sindhi_letter(ch) or ch == '_' or ch in ('\u200C', '\u200D')
+    return is_sindhi_letter(ch) or ch == '_'
 
 
 def is_identifier_char(ch: str) -> bool:
