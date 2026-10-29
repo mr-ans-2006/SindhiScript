@@ -24,6 +24,12 @@ class ModuleLoader:
 
         filepath = f"{module_name}.سن"
         if not os.path.exists(filepath):
+            # Names are read with ھ written as ه, so also match file names that use ھ
+            for candidate in os.listdir('.'):
+                if candidate.replace('\u06BE', '\u0647') == filepath:
+                    filepath = candidate
+                    break
+        if not os.path.exists(filepath):
             raise RuntimeError(f"ماڊيول '{module_name}' ({filepath}) نه مليو", node)
 
         try:
@@ -45,7 +51,12 @@ class ModuleLoader:
         # We also want the module to know about the module_loader if it imports things
         # This requires Evaluator to use THIS ModuleLoader. We achieve this by letting
         # the evaluator execute the block with the new environment.
-        self.evaluator.execute_block(ast.statements, mod_env)
+        try:
+            self.evaluator.execute_block(ast.statements, mod_env)
+        except RuntimeError as e:
+            if e.filename == '<stdin>':
+                e.set_filename(filepath)
+            raise
 
         # After execution, what does it export?
         # If 'جاريات' (exports) is defined in the module's environment (as a special variable),

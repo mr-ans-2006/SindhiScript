@@ -12,6 +12,100 @@ from .environment import Environment
 from .errors import RuntimeError
 
 
+# ─── Value → text (used by ڇاپ، متن and f-strings) ─────────────────────────
+
+def sindhi_repr(val: Any) -> str:
+    """Like repr(), but booleans are written as صحيح / غلط."""
+    if val is True:
+        return 'صحيح'
+    if val is False:
+        return 'غلط'
+    if isinstance(val, list):
+        return '[' + ', '.join(sindhi_repr(v) for v in val) + ']'
+    if isinstance(val, tuple):
+        inner = ', '.join(sindhi_repr(v) for v in val)
+        return '(' + inner + (',)' if len(val) == 1 else ')')
+    if isinstance(val, dict):
+        return '{' + ', '.join(f'{sindhi_repr(k)}: {sindhi_repr(v)}' for k, v in val.items()) + '}'
+    if isinstance(val, str):
+        return repr(val)
+    return str(val)
+
+
+def sindhi_str(val: Any) -> str:
+    """Like str(), but booleans are written as صحيح / غلط."""
+    if isinstance(val, str):
+        return val
+    return sindhi_repr(val)
+
+
+def split_fstring(text: str) -> List[tuple]:
+    """
+    Split the body of an f-string into parts:
+      ('text', 'literal text')  and  ('expr', 'expression source', 'format spec')
+    {{ and }} are literal braces, like Python.
+    """
+    parts = []
+    buf = ''
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch == '{' and i + 1 < n and text[i + 1] == '{':
+            buf += '{'
+            i += 2
+            continue
+        if ch == '}' and i + 1 < n and text[i + 1] == '}':
+            buf += '}'
+            i += 2
+            continue
+        if ch == '{':
+            if buf:
+                parts.append(('text', buf))
+                buf = ''
+            # find the matching }, skipping nested brackets and strings
+            depth = 0
+            quote = None
+            spec_at = -1
+            j = i + 1
+            while j < n:
+                c = text[j]
+                if quote:
+                    if c == '\\':
+                        j += 2
+                        continue
+                    if c == quote:
+                        quote = None
+                elif c in '"\'':
+                    quote = c
+                elif c in '([{':
+                    depth += 1
+                elif c in ')]':
+                    depth -= 1
+                elif c == '}':
+                    if depth == 0:
+                        break
+                    depth -= 1
+                elif c == ':' and depth == 0 and spec_at < 0:
+                    spec_at = j
+                j += 1
+            if j >= n:
+                raise ValueError("'{' بند نه ٿيو")
+            if spec_at >= 0:
+                parts.append(('expr', text[i + 1:spec_at], text[spec_at + 1:j]))
+            else:
+                parts.append(('expr', text[i + 1:j], ''))
+            i = j + 1
+            continue
+        if ch == '}':
+            raise ValueError("اڪيلو '}' مليو — '}}' استعمال ڪريو")
+        buf += ch
+        i += 1
+    if buf:
+        parts.append(('text', buf))
+    return parts
+
+
 class ReturnException(Exception):
     def __init__(self, value: Any):
         self.value = value
@@ -152,8 +246,9 @@ class SindhiInstance:
 # ─── Evaluator ──────────────────────────────────────────────────────────────
 
 class Evaluator:
-    def __init__(self):
+    def __init__(self, filename: str = '<stdin>'):
         from .module_loader import ModuleLoader
+        self.filename = filename
         self.globals = Environment()
         self.environment = self.globals
         self.module_loader = ModuleLoader(self)
@@ -164,12 +259,15 @@ class Evaluator:
         setup_builtins(self.globals)
 
     def interpret(self, program: Program):
+        # Runtime errors are passed up to the caller (CLI, REPL, web IDE),
+        # so a failing script exits non-zero and shows its real file name.
         try:
             for stmt in program.statements:
                 self.execute(stmt)
         except RuntimeError as e:
-            import sys
-            print(e, file=sys.stderr)
+            if e.filename == '<stdin>':
+                e.set_filename(self.filename)
+            raise
 
     def execute(self, stmt: Statement):
         method_name = f'visit_{stmt.__class__.__name__}'
@@ -336,10 +434,44 @@ class Evaluator:
         if not expr.is_fstring:
             return expr.value
             
-        # Basic f-string implementation for phase 4:
-        # In a full language we would parse expressions inside {}.
-        # For this prototype we will just return the literal (or use regex to eval locals).
-        return expr.value
+        # f-string: each {expression} is lexed, parsed and evaluated in the
+        # current scope. {قدر:.2f} style format specs are passed to format().
+        parts = getattr(expr, '_fstring_parts', None)
+        if parts is None:
+            from .lexer import tokenize
+            from .parser import Parser
+            try:
+                raw_parts = split_fstring(expr.value)
+            except ValueError as e:
+                raise RuntimeError(f"f-متن ۾ غلطي: {e}", expr)
+            parts = []
+            for part in raw_parts:
+                if part[0] == 'text':
+                    parts.append(part)
+                    continue
+                source = part[1].strip()
+                if not source:
+                    raise RuntimeError("f-متن ۾ خالي {} مليو", expr)
+                program = Parser(tokenize(source + '\n', self.filename), self.filename).parse()
+                if len(program.statements) != 1 or not isinstance(program.statements[0], ExpressionStatement):
+                    raise RuntimeError(f"f-متن ۾ رڳو اظهار (expression) لکي سگهجي ٿو: {source}", expr)
+                parts.append(('expr', program.statements[0].expression, part[2]))
+            expr._fstring_parts = parts
+
+        out = []
+        for part in parts:
+            if part[0] == 'text':
+                out.append(part[1])
+                continue
+            value = self.evaluate(part[1])
+            if part[2]:
+                try:
+                    out.append(format(value, part[2]))
+                except (ValueError, TypeError) as e:
+                    raise RuntimeError(f"f-متن جي فارميٽ '{part[2]}' ۾ غلطي: {e}", expr)
+            else:
+                out.append(sindhi_str(value))
+        return ''.join(out)
 
     def visit_BooleanLiteral(self, expr: BooleanLiteral):
         return expr.value

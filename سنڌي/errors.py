@@ -17,6 +17,11 @@ class SindhiError(Exception):
         self.filename = filename
         super().__init__(self._format())
 
+    def set_filename(self, filename: str):
+        """Attach the real script name (errors raised deep in the evaluator default to <stdin>)."""
+        self.filename = filename
+        self.args = (self._format(),)
+
     def _format(self) -> str:
         # Format:
         # غلطي [فائل_نالو:سٽ:ڪالم]: غلطي_جو_قسم
@@ -28,7 +33,7 @@ class SindhiError(Exception):
             f"{self.error_type}\n"
             f"{self.sindhi_message}\n"
             f"\u0641\u0627\u0626\u0644: {self.filename}\u060C "
-            f"\u0633\u0679 {self.line}\u060C "
+            f"\u0633\u067D {self.line}\u060C "
             f"\u06AA\u0627\u0644\u0645 {self.col}"
         )
 
@@ -49,7 +54,7 @@ class RuntimeError(SindhiError):
         self.node = node
         line = getattr(node, 'line', '?') if node else '?'
         col = getattr(node, 'col', '?') if node else '?'
-        super().__init__(message, "رن_ٽاﺋﻢ_غلطي", line, col, filename)
+        super().__init__(message, "رن_ٽائم_غلطي", line, col, filename)
 
 
 def install_sindhi_excepthook():
@@ -96,7 +101,7 @@ def install_sindhi_excepthook():
         error_msg = (
             f"\u063A\u0644\u0637\u064A [{filename}:{line}:{col}]: سسٽم_غلطي\n"
             f"{sindhi_msg}\n"
-            f"\u0641\u0627\u0626\u0644: {filename}\u060C \u0633\u0679 {line}\u060C \u06AA\u0627\u0644\u0645 {col}"
+            f"\u0641\u0627\u0626\u0644: {filename}\u060C \u0633\u067D {line}\u060C \u06AA\u0627\u0644\u0645 {col}"
         )
         print(error_msg, file=sys.stderr)
 

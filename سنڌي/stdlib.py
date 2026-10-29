@@ -8,7 +8,7 @@ import math
 import random
 from datetime import datetime
 
-from .evaluator import SindhiCallable
+from .evaluator import SindhiCallable, sindhi_str
 from .errors import RuntimeError
 from . import terminal
 
@@ -36,7 +36,7 @@ class BuiltinFunction(SindhiCallable):
 
 def builtin_print(*args):
     # 'ڇاپ'
-    text = " ".join(str(a) for a in args)
+    text = " ".join(sindhi_str(a) for a in args)
     terminal.print_output(text)
     return None
 
@@ -51,7 +51,7 @@ def builtin_input(prompt):
 
 def builtin_int(val): return int(val)
 def builtin_float(val): return float(val)
-def builtin_str(val): return str(val)
+def builtin_str(val): return sindhi_str(val)
 def builtin_list(val): return list(val)
 def builtin_dict(val): return dict(val)
 def builtin_set(val): return set(val)
@@ -153,7 +153,7 @@ def setup_builtins(env):
         'قسم': BuiltinFunction('قسم', 1, builtin_type),
         
         # Sequences
-        'ڊگھائي': BuiltinFunction('ڊگھائي', 1, builtin_len),
+        'ڊگهائي': BuiltinFunction('ڊگهائي', 1, builtin_len),  # ڊگھائي works too (ھ = ه)
         'حد': BuiltinFunction('حد', -1, builtin_range),
         'شامل_ڪرو': BuiltinFunction('شامل_ڪرو', 2, builtin_append),
         'هٽايو': BuiltinFunction('هٽايو', 2, builtin_remove),

@@ -125,9 +125,10 @@ ESCAPE_MAP = {
 
 # ─── Symbol Characters ───────────────────────────────────────────
 # () [] {} for grouping/collections, : for blocks, = for assignment,
-# . for attribute access, ، (U+060C Arabic comma) for separators
+# . for attribute access, ، (U+060C Arabic comma) for separators.
+# The ASCII comma (,) is also accepted and treated exactly like ،
 
-SYMBOLS = frozenset('()[]{}:=.\u060C')
+SYMBOLS = frozenset('()[]{}:=.\u060C,')
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -183,6 +184,11 @@ def is_identifier_start(ch: str) -> bool:
 def is_identifier_char(ch: str) -> bool:
     """Check if character can appear in an identifier body."""
     return is_sindhi_letter(ch) or is_any_digit(ch) or ch == '_' or ch in ('\u200C', '\u200D')
+
+
+def normalize_heh(word: str) -> str:
+    """Write ھ (U+06BE) as ه (U+0647), the form used by all keywords."""
+    return word.replace('\u06BE', '\u0647')
 
 
 def sindhi_to_arabic(text: str) -> str:
@@ -383,9 +389,9 @@ class Lexer:
             # ── Tab → error ──
             if ch == '\t':
                 raise self._error(
-                    "\u0679\u064A\u0628 \u0627\u06AA\u0634\u0631 "
+                    "\u067D\u064A\u0628 \u0627\u06AA\u0634\u0631 "
                     "\u0627\u0633\u062A\u0639\u0645\u0627\u0644 "
-                    "\u06AA\u0631\u06BB\u0646 \u0645\u0646\u0639 "
+                    "\u06AA\u0631\u06BB \u0645\u0646\u0639 "
                     "\u0622\u0647\u064A\u06D4 \u0645\u0647\u0631"
                     "\u0628\u0627\u0646\u064A \u06AA\u0631\u064A "
                     "\u06F4 \u062E\u0627\u0644\u064A "
@@ -444,7 +450,7 @@ class Lexer:
             # ── Unknown character ──
             cp = ord(ch)
             raise self._error(
-                f"\u0627\u06BB \u0633\u06C3\u0627\u062A\u0644 "
+                f"\u0627\u06BB \u0633\u0683\u0627\u062A\u0644 "
                 f"\u0627\u06AA\u0634\u0631: '{ch}' (U+{cp:04X})"
             )  # "اڻ سڃاتل اکر"
 
@@ -479,9 +485,9 @@ class Lexer:
         # Tab check
         if not self._at_end() and self._cur() == '\t':
             raise self._error(
-                "\u0679\u064A\u0628 \u0627\u06AA\u0634\u0631 "
+                "\u067D\u064A\u0628 \u0627\u06AA\u0634\u0631 "
                 "\u0627\u0633\u062A\u0639\u0645\u0627\u0644 "
-                "\u06AA\u0631\u06BB\u0646 \u0645\u0646\u0639 "
+                "\u06AA\u0631\u06BB \u0645\u0646\u0639 "
                 "\u0622\u0647\u064A\u06D4 \u0645\u0647\u0631"
                 "\u0628\u0627\u0646\u064A \u06AA\u0631\u064A "
                 "\u06F4 \u062E\u0627\u0644\u064A "
@@ -596,8 +602,8 @@ class Lexer:
 
             if ch == '\n':
                 raise self._error(
-                    "\u0645\u062A\u0646 \u06BE "
-                    "\u0646\u0626\u064A\u0646 \u0633\u0679 "
+                    "\u0645\u062A\u0646 \u06FE "
+                    "\u0646\u0626\u064A\u0646 \u0633\u067D "
                     "\u0645\u0644\u064A\u0648 \u2014 "
                     "\u0645\u062A\u0646 \u0628\u0646\u062F "
                     "\u06AA\u0631\u064A\u0648",
@@ -608,7 +614,7 @@ class Lexer:
                 self._advance()  # skip backslash
                 if self._at_end():
                     raise self._error(
-                        "\u0645\u062A\u0646 \u06BE "
+                        "\u0645\u062A\u0646 \u06FE "
                         "\u0641\u0631\u0627\u0631 \u062A\u0633\u0644\u0633\u0644 "
                         "\u0627\u06BB\u0645\u06AA\u0645\u0644 "
                         "\u0622\u0647\u064A",
@@ -619,7 +625,7 @@ class Lexer:
                     value += ESCAPE_MAP[esc]
                 else:
                     raise self._error(
-                        f"\u0627\u06BB\u0633\u06C3\u0627\u062A\u0644 "
+                        f"\u0627\u06BB\u0633\u0683\u0627\u062A\u0644 "
                         f"\u0641\u0631\u0627\u0631 \u062A\u0633\u0644"
                         f"\u0633\u0644: '\\{esc}'",
                         line, col
@@ -636,7 +642,7 @@ class Lexer:
         raise self._error(
             f"\u0645\u062A\u0646 \u0628\u0646\u062F \u0646\u0647 "
             f"\u062B\u064A\u0648 \u2014 \u0628\u0646\u062F "
-            f"\u06AA\u0631\u06BB\u0646 \u0648\u0627\u0631\u0648 "
+            f"\u06AA\u0631\u06BB \u0648\u0627\u0631\u0648 "
             f"{quote} \u0646\u0634\u0627\u0646 \u0646\u0647 "
             f"\u0645\u0644\u064A\u0648",
             line, col
@@ -664,8 +670,8 @@ class Lexer:
 
             if ch == '\n':
                 raise self._error(
-                    "f-\u0645\u062A\u0646 \u06BE "
-                    "\u0646\u0626\u064A\u0646 \u0633\u0679 "
+                    "f-\u0645\u062A\u0646 \u06FE "
+                    "\u0646\u0626\u064A\u0646 \u0633\u067D "
                     "\u0645\u0644\u064A\u0648 \u2014 "
                     "\u0645\u062A\u0646 \u0628\u0646\u062F "
                     "\u06AA\u0631\u064A\u0648",
@@ -676,7 +682,7 @@ class Lexer:
                 self._advance()
                 if self._at_end():
                     raise self._error(
-                        "f-\u0645\u062A\u0646 \u06BE "
+                        "f-\u0645\u062A\u0646 \u06FE "
                         "\u0641\u0631\u0627\u0631 \u062A\u0633\u0644"
                         "\u0633\u0644 \u0627\u06BB\u0645\u06AA\u0645\u0644 "
                         "\u0622\u0647\u064A",
@@ -687,7 +693,7 @@ class Lexer:
                     value += ESCAPE_MAP[esc]
                 else:
                     raise self._error(
-                        f"\u0627\u06BB\u0633\u06C3\u0627\u062A\u0644 "
+                        f"\u0627\u06BB\u0633\u0683\u0627\u062A\u0644 "
                         f"\u0641\u0631\u0627\u0631 \u062A\u0633\u0644"
                         f"\u0633\u0644: '\\{esc}'",
                         line, col
@@ -715,7 +721,7 @@ class Lexer:
         raise self._error(
             f"f-\u0645\u062A\u0646 \u0628\u0646\u062F \u0646\u0647 "
             f"\u062B\u064A\u0648 \u2014 \u0628\u0646\u062F "
-            f"\u06AA\u0631\u06BB\u0646 \u0648\u0627\u0631\u0648 "
+            f"\u06AA\u0631\u06BB \u0648\u0627\u0631\u0648 "
             f"{quote} \u0646\u0634\u0627\u0646 \u0646\u0647 "
             f"\u0645\u0644\u064A\u0648",
             line, col
@@ -779,6 +785,12 @@ class Lexer:
         while not self._at_end() and is_identifier_char(self._cur()):
             word += self._advance()
 
+        # ھ (U+06BE) and ه (U+0647) look the same in most fonts, so treat
+        # them as one letter: ڊگھائي and ڊگهائي are the same name.
+        # (Skipped for ٻاهري headers, whose names are used by raw Python.)
+        if not self._ffi_armed:
+            word = normalize_heh(word)
+
         # ── Keyword? ──
         if word in KEYWORDS:
             self._emit(TokenType.KEYWORD, word, line, col)
@@ -830,8 +842,8 @@ class Lexer:
 
             if part in KEYWORDS:
                 raise self._error(
-                    f"\u0633\u06C3\u0627\u06BB\u067E \u0646\u0627\u0644\u0648 "
-                    f"'{identifier}' \u06BE "
+                    f"\u0633\u0683\u0627\u06BB\u067E \u0646\u0627\u0644\u0648 "
+                    f"'{identifier}' \u06FE "
                     f"\u0645\u062D\u0641\u0648\u0638 \u0644\u0641\u0638 "
                     f"'{part}' \u0634\u0627\u0645\u0644 "
                     f"\u0622\u0647\u064A\u060C "
@@ -842,9 +854,9 @@ class Lexer:
 
             if part in WORD_OPERATORS:
                 raise self._error(
-                    f"\u0633\u06C3\u0627\u06BB\u067E \u0646\u0627\u0644\u0648 "
-                    f"'{identifier}' \u06BE "
-                    f"\u0622\u067E\u0631\u064A\u0679\u0631 "
+                    f"\u0633\u0683\u0627\u06BB\u067E \u0646\u0627\u0644\u0648 "
+                    f"'{identifier}' \u06FE "
+                    f"\u0622\u067E\u0631\u064A\u067D\u0631 "
                     f"'{part}' \u0634\u0627\u0645\u0644 "
                     f"\u0622\u0647\u064A\u060C "
                     f"\u062C\u064A\u06AA\u0648 \u0645\u0646\u0639 "
@@ -861,6 +873,10 @@ class Lexer:
         line, col = self.line, self.column
         ch = self._advance()
 
+        # ASCII comma is an alias for the Arabic comma ،
+        if ch == ',':
+            ch = '\u060C'
+
         # Track bracket nesting for implicit line continuation
         if ch in '([{':
             self.paren_depth += 1
@@ -870,10 +886,10 @@ class Lexer:
                 bracket_name = {')': ')', ']': ']', '}': '}'}.get(ch, ch)
                 raise self._error(
                     f"\u0627\u0636\u0627\u0641\u064A \u0628\u0646\u062F "
-                    f"\u06AA\u0631\u06BB\u0646 \u0648\u0627\u0631\u0648 "
+                    f"\u06AA\u0631\u06BB \u0648\u0627\u0631\u0648 "
                     f"\u0646\u0634\u0627\u0646 '{bracket_name}' \u0645\u0644\u064A\u0648 "
-                    f"\u0628\u063A\u064A\u0631 \u0645\u0644\u0646\u062F\u0691 "
-                    f"\u06A9\u06BE\u0648\u0644\u06BB\u0646 \u0648\u0627\u0631\u0648 "
+                    f"\u0628\u063A\u064A\u0631 \u0645\u0644\u0646\u062F\u0699 "
+                    f"\u06A9\u0648\u0644\u06BB \u0648\u0627\u0631\u0648 "
                     f"\u0646\u0634\u0627\u0646",
                     line, col
                 )  # "اضافي بند ڪرڻ وارو نشان ')' مليو بغير ملندڙ کولڻ وارو نشان"

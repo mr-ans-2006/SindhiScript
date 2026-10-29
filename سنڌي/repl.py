@@ -38,7 +38,7 @@ def start_repl():
     terminal.print_output("سنڌي (SindhiScript) REPL ۾ ڀليڪار!")
     terminal.print_output("مدد لاءِ '.مدد' لکو، نڪرڻ لاءِ '.نڪرو' لکو.")
     
-    evaluator = Evaluator()
+    evaluator = Evaluator("<repl>")
     show_ast = False
     
     while True:

@@ -19,6 +19,12 @@ from سنڌي.errors import SindhiError
 
 PORT = 5000
 
+# The IDE runs any code it is sent (including raw Python through ٻاهري ڪم),
+# so by default it only listens on this computer. To open it to your network
+# on purpose, run:  python web_ide.py --عام   (or set SINDHI_IDE_PUBLIC=1)
+PUBLIC = '--عام' in sys.argv or '--public' in sys.argv or os.environ.get('SINDHI_IDE_PUBLIC') == '1'
+HOST = '0.0.0.0' if PUBLIC else '127.0.0.1'
+
 # Global state for runs
 active_runs = {}
 
@@ -64,7 +70,7 @@ def run_code_thread(run_id, source_code):
         tokens = tokenize(source_code, "web.سن")
         parser = Parser(tokens, "web.سن")
         ast = parser.parse()
-        evaluator = Evaluator()
+        evaluator = Evaluator("web.سن")
         evaluator.interpret(ast)
     except SindhiError as e:
         print(e, file=sys.stderr)
@@ -164,8 +170,10 @@ class WebIDEHandler(http.server.BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), WebIDEHandler) as httpd:
+    with socketserver.TCPServer((HOST, PORT), WebIDEHandler) as httpd:
         print(f"Web IDE Server running on http://localhost:{PORT}")
+        if PUBLIC:
+            print("WARNING: listening on all network interfaces. Anyone on your network can run code on this computer.")
         print("Press Ctrl+C to stop the server.")
         try:
             httpd.serve_forever()

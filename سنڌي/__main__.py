@@ -50,14 +50,14 @@ def run_file(filepath: str):
         print("مهرباني ڪري فائل کي UTF-8 انڪوڊنگ ۾ محفوظ ڪريو.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"غلطي: فائل ਪڙهڻ ۾ مسئلو: {e}", file=sys.stderr)
+        print(f"غلطي: فائل پڙهڻ ۾ مسئلو: {e}", file=sys.stderr)
         sys.exit(1)
 
     try:
         tokens = tokenize(source, filepath)
         parser = Parser(tokens, filepath)
         ast = parser.parse()
-        evaluator = Evaluator()
+        evaluator = Evaluator(filepath)
         evaluator.interpret(ast)
     except SindhiError as e:
         print(e, file=sys.stderr)
