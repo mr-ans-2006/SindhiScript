@@ -137,7 +137,7 @@ async function run() {
     clearTimeout(runTimer);
   }
   runTimer = setTimeout(function () {
-    /* Hard backstop (spec 2a): the worker is killed, the page survives. */
+    /* Hard backstop: the worker is killed, the page survives. */
     try {
       worker.terminate();
     } catch (e) {

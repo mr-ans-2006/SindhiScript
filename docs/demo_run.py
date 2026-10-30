@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""SindhiScript browser-demo harness (demo-only file, not part of the repo).
+"""SindhiScript browser-demo harness (used only by the demo in docs/).
 
 Runs SindhiScript source with the demo's resource limits and returns plain
 text. Pure Python — no Pyodide imports — so the same code is tested with

@@ -9,8 +9,6 @@ meaning in a browser. This version never touches the filesystem: modules
 load ONLY from the in-memory DEMO_MODULES dict supplied by the demo
 harness, keyed by module name. Any name that is not in the dict — including
 paths with /, \\, .. or absolute paths — is refused with a clear error.
-
-Installed by /tmp/patch_demo.py (copied over interpreter/سنڌي/module_loader.py).
 """
 from .lexer import tokenize
 from .parser import Parser
