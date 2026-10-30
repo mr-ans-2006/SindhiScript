@@ -1,5 +1,7 @@
 # سنڌي — SindhiScript
 
+> ▶ **Try it live in your browser:** https://mr-ans-2006.github.io/SindhiScript/ — no install needed, the interpreter runs entirely in your browser.
+
 **A programming language written in Sindhi.** SindhiScript is a tree-walking interpreter, written in Python, whose keywords, operators and built-in functions are all Sindhi words in the Sindhi-Arabic script.
 
 > سنڌي اسڪرپٽ هڪ پروگرامنگ ٻولي آهي جنهن جا سڀ لفظ، آپريٽر ۽ فنڪشن سنڌي ۾ آهن.
