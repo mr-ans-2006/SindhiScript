@@ -1,0 +1,125 @@
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "Vazirmatn", "Noto Naskh Arabic", "Noto Nastaliq Urdu", Tahoma, sans-serif;
+}
+
+header {
+  padding: 12px 20px;
+  background-color: #252526;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+header h1 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+}
+
+header .subtitle {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #cccccc;
+}
+
+header .safety {
+  margin: 0;
+  font-size: 13px;
+  font-style: italic;
+  color: #3794ff;
+}
+
+main {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+}
+
+#left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+button {
+  background-color: #0e639c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+button:disabled {
+  background-color: #555555;
+  cursor: default;
+}
+
+select, textarea {
+  background-color: #252526;
+  color: #d4d4d4;
+  border: 1px solid #3c3c3c;
+  font-family: "Vazirmatn", "Noto Naskh Arabic", Consolas, monospace;
+  font-size: 16px;
+}
+
+#editor {
+  min-height: 320px;
+  direction: rtl;
+}
+
+#stdin {
+  direction: rtl;
+}
+
+#status {
+  background-color: #252526;
+  padding: 6px 12px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+#output {
+  flex: 1;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  font-family: "Vazirmatn", "Noto Naskh Arabic", Consolas, monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  color: #cccccc;
+  direction: rtl;
+  min-height: 320px;
+}

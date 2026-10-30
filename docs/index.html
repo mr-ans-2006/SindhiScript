@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="sd" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'">
+<title>SindhiScript — Browser Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>سنڌي — SindhiScript Browser Demo</h1>
+  <p class="subtitle">Live demo — no download, no setup. Write Sindhi code, press Run, and it runs in your browser.</p>
+  <p class="safety">Your code runs in your browser, in a sandboxed worker, with a 5-second limit. It can't touch your files or the network. If it hangs, hit Reset.</p>
+</header>
+<main>
+  <section id="left">
+    <div class="row">
+      <label for="example">مثال (example):</label>
+      <select id="example"></select>
+      <button id="runBtn" type="button">هلايو (Run)</button>
+      <button id="resetBtn" type="button">ٻيهر شروع (Reset)</button>
+    </div>
+    <label for="editor">ڪوڊ (code):</label>
+    <textarea id="editor" dir="rtl" spellcheck="false">ڪم سلام_ڪريو(نالو):
+    ڇاپ("سلام،"، نالو)
+
+سلام_ڪريو("سنڌ")</textarea>
+    <label for="stdin">داخل (input lines, one per line — used by داخل_ڪرو):</label>
+    <textarea id="stdin" dir="rtl" spellcheck="false" rows="3"></textarea>
+  </section>
+  <section id="right">
+    <div id="status">Booting interpreter…</div>
+    <pre id="output"></pre>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
