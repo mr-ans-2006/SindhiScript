@@ -1,6 +1,6 @@
 # سنڌي — SindhiScript
 
-> ▶ **Try it live in your browser:** https://mr-ans-2006.github.io/SindhiScript/ — no install needed, the interpreter runs entirely in your browser.
+> ▶ **Try it live:** https://mr-ans-2006.github.io/SindhiScript/ — runs in your browser, no install.
 
 **A programming language written in Sindhi.** SindhiScript is a tree-walking interpreter, written in Python, whose keywords, operators and built-in functions are all Sindhi words in the Sindhi-Arabic script.
 
@@ -72,7 +72,7 @@ sindhiscript examples/سنسار.سن
 
 ### Three ways to write code
 
-1. **Web IDE (recommended).** Most terminals can't join Sindhi letters right to left, so a browser is the most comfortable place to write it.
+1. **Web IDE (recommended).** Most terminals can't join Sindhi letters right to left, so the browser is the easiest place to write it.
    ```bash
    python web_ide.py
    ```
@@ -92,7 +92,7 @@ sindhiscript examples/سنسار.سن
 
 ## Examples
 
-Every example below was run with `python -m سنڌي`, and the output shown is what the interpreter actually printed.
+Each output below is what `python -m سنڌي` actually prints.
 
 ### 1. Variables, constants and types
 
@@ -386,7 +386,7 @@ Separate items with the Sindhi comma `،`. A plain `,` works too and means the s
 - `ھ` (U+06BE) and `ه` (U+0647) are treated as the same letter in names and keywords, so `ڊگھائي` and `ڊگهائي` both work.
 - Errors are reported in Sindhi with the file, line and column, and a script that fails exits with code 1.
 - Module files are looked up relative to the folder you run the command from.
-- `ٻاهري ڪم` runs real Python with full access to your machine, so only run SindhiScript code you trust.
+- `ٻاهري ڪم` runs real Python with full access to your machine, so only run SindhiScript code you trust. The live demo is sandboxed instead; see [SECURITY.md](SECURITY.md).
 
 ## Docs
 
