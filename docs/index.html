@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
+<header dir="ltr">
   <h1>سنڌي — SindhiScript Browser Demo</h1>
   <p class="subtitle">Live demo — no download, no setup. Write Sindhi code, press Run, and it runs in your browser.</p>
   <p class="safety">Your code runs in your browser, in a sandboxed worker, with a 5-second limit. It can't touch your files or the network. Python interop is limited to math, random, json and datetime only. If it hangs, hit Reset.</p>
@@ -30,7 +30,7 @@
     <textarea id="stdin" dir="rtl" spellcheck="false" rows="3"></textarea>
   </section>
   <section id="right">
-    <div id="status">Booting interpreter…</div>
+    <div id="status" dir="ltr">Booting interpreter…</div>
     <pre id="output"></pre>
   </section>
 </main>
