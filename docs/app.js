@@ -17,7 +17,7 @@ var exampleSources = {};
  * a path directly — it must match one of these entries. */
 var EXAMPLES = [
   { file: "سلام.سن", label: "سلام — hello" },
-  { file: "سنسار.سن", label: "سنسار — full tour (last part blocked by design)" },
+  { file: "سنسار.سن", label: "سنسار — full tour" },
   { file: "لوپ.سن", label: "لوپ — loops and functions" },
   { file: "رياضي.سن", label: "رياضي — math interop (allowed)" }
 ];
