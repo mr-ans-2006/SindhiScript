@@ -12,85 +12,109 @@
   font-display: swap;
 }
 
+/* Portfolio terminal look: plain black, white text, thin grey borders,
+   no coloured panels or buttons. Monospace for the UI chrome, Vazirmatn
+   for Sindhi text in the editor and output. */
+
 body {
   margin: 0;
   padding: 0;
-  background-color: #1e1e1e;
-  color: #d4d4d4;
+  background-color: #000000;
+  color: #ffffff;
   font-family: "Vazirmatn", "Noto Naskh Arabic", "Noto Nastaliq Urdu", Tahoma, sans-serif;
 }
 
 header {
-  padding: 12px 20px;
-  background-color: #252526;
-  border-bottom: 1px solid #3c3c3c;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333333;
 }
 
 header h1 {
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   font-size: 20px;
+  font-weight: 700;
 }
 
 header .subtitle {
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   font-size: 14px;
-  color: #cccccc;
+  color: #aaaaaa;
 }
 
 header .safety {
   margin: 0;
   font-size: 13px;
-  font-style: italic;
-  color: #3794ff;
+  color: #888888;
 }
 
 main {
   display: flex;
-  gap: 12px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 #left {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 #right {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .row {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+label {
+  font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  color: #aaaaaa;
 }
 
 button {
-  background-color: #0e639c;
+  background-color: #000000;
   color: #ffffff;
-  border: none;
-  padding: 6px 14px;
+  border: 1px solid #ffffff;
+  padding: 8px 16px;
   cursor: pointer;
-  font-family: inherit;
+  font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
   font-size: 14px;
 }
 
+button#runBtn {
+  background-color: #ffffff;
+  color: #000000;
+}
+
 button:disabled {
-  background-color: #555555;
+  background-color: #000000;
+  color: #555555;
+  border-color: #333333;
   cursor: default;
 }
 
 select, textarea {
-  background-color: #252526;
-  color: #d4d4d4;
-  border: 1px solid #3c3c3c;
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #333333;
   font-family: "Vazirmatn", "Noto Naskh Arabic", Consolas, monospace;
   font-size: 16px;
+}
+
+select:focus, textarea:focus, button:focus {
+  outline: none;
+  border-color: #ffffff;
 }
 
 #editor {
@@ -103,10 +127,11 @@ select, textarea {
 }
 
 #status {
-  background-color: #252526;
-  padding: 6px 12px;
+  border: 1px solid #333333;
+  padding: 8px 12px;
+  font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
   font-size: 13px;
-  letter-spacing: 0.5px;
+  color: #ffffff;
 }
 
 #output {
@@ -114,12 +139,42 @@ select, textarea {
   margin: 0;
   padding: 10px;
   overflow-y: auto;
-  background-color: #1e1e1e;
-  border: 1px solid #3c3c3c;
+  background-color: #000000;
+  border: 1px solid #333333;
   font-family: "Vazirmatn", "Noto Naskh Arabic", Consolas, monospace;
   font-size: 14px;
   white-space: pre-wrap;
-  color: #cccccc;
+  color: #ffffff;
   direction: rtl;
   min-height: 320px;
+}
+
+/* Phones: stack editor above output, full width, no side-by-side squeeze. */
+@media (max-width: 640px) {
+  header {
+    padding: 12px;
+  }
+
+  main {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row button,
+  .row select {
+    width: 100%;
+  }
+
+  #editor {
+    min-height: 260px;
+  }
+
+  #output {
+    min-height: 260px;
+  }
 }
